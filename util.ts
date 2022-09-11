@@ -41,12 +41,17 @@ export function cat(arrays: BufferSource[]): Uint8Array {
   return buf;
 }
 
-export async function readN(source: { readable: ReadableStream<Uint8Array> }, n: number) {
+export async function readN(
+  source: { readable: ReadableStream<Uint8Array> },
+  n: number,
+) {
   const r = source.readable.getReader({ mode: "byob" });
   let buffer = new ArrayBuffer(n);
   let offset = 0;
   while (offset < buffer.byteLength) {
-    const { value, done } = await r.read(new Uint8Array(buffer, offset, buffer.byteLength - offset));
+    const { value, done } = await r.read(
+      new Uint8Array(buffer, offset, buffer.byteLength - offset),
+    );
     if (done) {
       r.releaseLock();
       throw new DecodeError("Unexpected end of source data");
