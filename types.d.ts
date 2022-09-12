@@ -25,7 +25,7 @@ export interface ByteSource {
  * // ...
  * const x: number = await MyCodec.readFrom(readableByteStreamSource);
  * ```
- * */
+ */
 export interface Codec<T> {
   readonly label?: string;
   readonly writeTo: (sink: ByteSink, value: T) => Promise<void>;

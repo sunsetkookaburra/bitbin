@@ -13,7 +13,7 @@ import { ByteSink, ByteSource, DecodeError } from "./mod.ts";
  * const value = view(data).getUint16(0, true);
  * value == 9; // true
  * ```
-*/
+ */
 export function view(source: BufferSource): DataView {
   return (
     "buffer" in source
@@ -30,7 +30,7 @@ export function view(source: BufferSource): DataView {
  * // assuming little-endian
  * console.log(ref); // Uint8Array(4) [ 5, 0, 4, 0 ]
  * ```
-*/
+ */
 export function bytes(source: BufferSource): Uint8Array {
   return (
     "buffer" in source
@@ -48,7 +48,7 @@ export function bytes(source: BufferSource): Uint8Array {
  * // assuming little-endian
  * console.log(out); // Uint8Array(4) [ 222, 173, 190, 239 ]
  * ```
-*/
+ */
 export function cat(arrays: BufferSource[]): Uint8Array {
   // get total length
   let len = 0;
