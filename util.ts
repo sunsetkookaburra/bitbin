@@ -76,7 +76,7 @@ export function cat(arrays: BufferSource[]): Uint8Array {
  *
  * ```ts
  * let buf = new ArrayBuffer(42);
- * buf = await readFull(readableByteStream, buf);
+ * buf = await readFull(readableByteStreamSource, buf);
  * console.log(new Uint8Array(buf));
  * ```
  */
@@ -121,7 +121,7 @@ export async function readFull(
 
  * ```ts
  * const txt = new TextEncoder().encode("Hello, World!");
- * await writeFull(writeableStream, txt);
+ * await writeFull(writableStreamSink, txt);
  * ```
  */
 export async function writeFull(sink: ByteSink, source: Uint8Array) {
@@ -133,7 +133,7 @@ export async function writeFull(sink: ByteSink, source: Uint8Array) {
 /** Read exactly `n` bytes into a new `Uint8Array` buffer and return it.
  *
  * ```ts
- * const out: Uint8Array = await readN(readableByteStream, 12);
+ * const out: Uint8Array = await readN(readableByteStreamSource, 12);
  * out.byteLength == 12; // true
  * ```
  */
