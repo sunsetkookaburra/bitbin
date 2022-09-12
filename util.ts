@@ -41,7 +41,8 @@ export function cat(arrays: BufferSource[]): Uint8Array {
   return buf;
 }
 
-/** Read bytes to fill `buffer` exactly, with no extra bytes consumed
+/** Read bytes to fill `buffer` exactly, with no extra bytes consumed.
+ * Returns the buffer used, to replace the input which beomes detached.
  *
  * See:
  * + [web.dev Streams API Guide](https://web.dev/streams/#readable-byte-stream-code-sample)

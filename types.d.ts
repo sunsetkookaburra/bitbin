@@ -12,10 +12,7 @@ export interface ByteSource {
 }
 
 export interface Codec<T> {
-  label: string;
-  writeTo(
-    sink: ByteSink,
-    value: T,
-  ): Promise<void>;
-  readFrom(source: ByteSource): Promise<T>;
+  readonly label: string;
+  readonly writeTo: (sink: ByteSink, value: T) => Promise<void>;
+  readonly readFrom: (source: ByteSource) => Promise<T>;
 }

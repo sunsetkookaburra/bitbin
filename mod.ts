@@ -7,7 +7,7 @@ export * from "./types.d.ts";
 export * from "./util.ts";
 
 import { Buffer } from "./deps.ts";
-import type { Codec, ByteSource } from "./types.d.ts";
+import type { ByteSource, Codec } from "./types.d.ts";
 import { bytes } from "./util.ts";
 
 /** Represents the byte-order used to encode numbers. */
