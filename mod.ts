@@ -4,15 +4,19 @@
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
 export * from "./types.d.ts";
+export * from "./util.ts";
 
 import { Buffer } from "./deps.ts";
-import type { Codec } from "./types.d.ts";
+import type { Codec, ByteSource } from "./types.d.ts";
 import { bytes } from "./util.ts";
 
 /** Represents the byte-order used to encode numbers. */
 export type Endian = "be" | "le";
 
-/** The byte-order used by the system to encode numbers. Currently does not detect mixed-endian. */
+/** The byte-order used by the system to encode numbers,
+ * either `"be"` or `"le"`.
+ * Currently does not detect mixed-endian *(unsure if this
+ * is a concern for JavaScript applications)*. */
 export const SYSTEM_ENDIAN: Endian = (() => {
   const a = new Uint16Array([0x1234]);
   return (bytes(a)[0] == 0x12) ? "be" : "le";
@@ -27,7 +31,7 @@ export class DecodeError extends Error {
 
 export function decode<T>(
   encoder: Codec<T>,
-  source: { readable: ReadableStream<Uint8Array> },
+  source: ByteSource,
 ): Promise<T> {
   return encoder.readFrom(source);
 }

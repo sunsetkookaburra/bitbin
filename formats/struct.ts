@@ -3,7 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
-import type { Codec } from "../types.d.ts";
+import type { Codec } from "../mod.ts";
 
 /** Encodes and decodes packed structs. (Aligned structures can be done with own e.g. `_pad1` encoder keys). */
 export function Struct<T extends { [K in keyof T]: unknown }>(

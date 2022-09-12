@@ -3,9 +3,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
-import type { Codec } from "../types.d.ts";
-import { readN, view } from "../util.ts";
-import { SYSTEM_ENDIAN } from "../mod.ts";
+import {
+  bytes,
+  Codec,
+  readFull,
+  SYSTEM_ENDIAN,
+  view,
+  writeFull,
+} from "../mod.ts";
 
 interface Primitives {
   "Uint8": number;
@@ -28,17 +33,15 @@ function buildCodec<T extends keyof Primitives>(
   const getter: `get${T}` = `get${type}`;
   const setter: `set${T}` = `set${type}`;
   if (type === "Int8" || type === "Uint8") littleEndian = false;
+  let buf = new ArrayBuffer(size);
   return {
     label: type,
-    writeTo: async ({ writable }, value) => {
-      const buf = new Uint8Array(size);
+    writeTo: async (sink, value) => {
       view(buf)[setter](0, value as never, littleEndian);
-      const w = writable.getWriter();
-      await w.write(buf);
-      w.releaseLock();
+      await writeFull(sink, bytes(buf));
     },
     readFrom: async (source) => {
-      const buf = await readN(source, size);
+      buf = await readFull(source, buf);
       return view(buf)[getter](0, littleEndian) as Primitives[T];
     },
   };

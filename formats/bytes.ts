@@ -3,27 +3,25 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
-import { Codec } from "../mod.ts";
-import { readN } from "../util.ts";
+import { bytes, Codec, readFull, writeFull } from "../mod.ts";
 
 export function Bytes(size: number, label = ""): Codec<Uint8Array> {
   const labelStr = `Bytes[${size}](${label})`;
+  let buf = new ArrayBuffer(size);
   return {
     "label": labelStr,
-    writeTo: async ({ writable }, value) => {
+    writeTo: async (sink, value) => {
       if (value.length != size) {
         throw new RangeError(
           `Bytes value length '${value.length}' != ${labelStr} length '${size}'`,
         );
       } else {
-        const w = writable.getWriter();
-        await w.write(value);
-        w.releaseLock();
+        await writeFull(sink, value);
       }
     },
     readFrom: async (source) => {
-      const buf = await readN(source, size);
-      return buf;
+      buf = await readFull(source, buf);
+      return bytes(buf);
     },
   };
 }

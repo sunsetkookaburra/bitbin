@@ -3,7 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
-import type { Codec } from "../types.d.ts";
+import type { Codec } from "../mod.ts";
 
 export function Tuple<T extends { [K in keyof T]: T[K] } & unknown[]>(
   tuple: { [K in keyof T]: Codec<T[K]> } & unknown[],

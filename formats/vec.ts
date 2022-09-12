@@ -3,7 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
-import type { Codec } from "../types.d.ts";
+import type { Codec } from "../mod.ts";
 
 /** Codec for fixed size arrays/vectors. */
 export function Vec<T>(

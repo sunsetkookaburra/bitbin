@@ -2,7 +2,7 @@
 
 > Garbage In, Garbage Out!
 
-All your binary data needs in a convenient TypeScript library.
+Binary data encoding and decoding in a convenient TypeScript library.
 
 ## License
 
