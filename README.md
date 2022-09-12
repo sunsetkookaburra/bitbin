@@ -2,7 +2,7 @@
 
 > Garbage In, Garbage Out!
 
-Binary data encoding and decoding in a convenient TypeScript library.
+Encode and decode binary data formats using TypeScript and the Web Streams API.
 
 ## Available Data Types
 
