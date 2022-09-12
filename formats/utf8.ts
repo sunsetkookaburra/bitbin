@@ -5,15 +5,15 @@
 
 import { Codec, readFull, writeFull } from "../mod.ts";
 
-export function UTF8(size: number, label = ""): Codec<string> {
-  const labelStr = `UTF8[${size}](${label})`;
+export function Utf8(size: number, label = ""): Codec<string> {
+  const labelStr = `Utf8[${size}](${label})`;
   let buf = new ArrayBuffer(size);
   return {
     "label": labelStr,
     writeTo: async (sink, value) => {
       if (value.length != size) {
         throw new RangeError(
-          `UTF8 value length '${value.length}' != ${labelStr} length '${size}'`,
+          `Utf8 value length '${value.length}' != ${labelStr} length '${size}'`,
         );
       } else {
         await writeFull(sink, new TextEncoder().encode(value));
