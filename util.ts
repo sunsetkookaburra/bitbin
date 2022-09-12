@@ -5,7 +5,15 @@
 
 import { ByteSink, ByteSource, DecodeError } from "./mod.ts";
 
-/** Shorthand to create a `DataView` of `source`. */
+/** Shorthand to create a `DataView` of `source`,
+ * respecting `byteOffset` and `byteLength` for ArrayBufferViews.
+ *
+ * ```ts
+ * const data = new Uint8Array([0x09, 0x00]);
+ * const value = view(data).getUint16(0, true);
+ * value == 9; // true
+ * ```
+*/
 export function view(source: BufferSource): DataView {
   return (
     "buffer" in source
@@ -14,7 +22,15 @@ export function view(source: BufferSource): DataView {
   );
 }
 
-/** Get a `Uint8Array` *reference* of the underlying bytes in `source`. */
+/** Get a `Uint8Array` *reference* of the underlying bytes in `source`.
+ *
+ * ```ts
+ * const data = new Uint16Array([5, 4]);
+ * const ref = bytes(data);
+ * // assuming little-endian
+ * console.log(ref); // Uint8Array(4) [ 5, 0, 4, 0 ]
+ * ```
+*/
 export function bytes(source: BufferSource): Uint8Array {
   return (
     "buffer" in source
@@ -23,7 +39,16 @@ export function bytes(source: BufferSource): Uint8Array {
   );
 }
 
-/** Concatenate `arrays` into a new `Uint8Array` */
+/** Concatenate `arrays` into a new `Uint8Array`
+ *
+ * ```ts
+ * const one = new Uint8Array([0xDE, 0xAD]);
+ * const two = new Uint16Array([0xEFBE]);
+ * const out = cat(one, two);
+ * // assuming little-endian
+ * console.log(out); // Uint8Array(4) [ 222, 173, 190, 239 ]
+ * ```
+*/
 export function cat(arrays: BufferSource[]): Uint8Array {
   // get total length
   let len = 0;
@@ -44,10 +69,17 @@ export function cat(arrays: BufferSource[]): Uint8Array {
 /** Read bytes to fill `buffer` exactly, with no extra bytes consumed.
  * Returns the buffer used, to replace the input which beomes detached.
  *
- * See:
+ * See how it was implemented:
  * + [web.dev Streams API Guide](https://web.dev/streams/#readable-byte-stream-code-sample)
  * + [Deno GitHub Issue on Detached Buffers](https://github.com/denoland/deno/issues/14382)
- * + [MDN Docs on Using Readable Byte Streams](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API/Using_readable_byte_streams#consuming_the_byte_stream) */
+ * + [MDN Docs on Using Readable Byte Streams](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API/Using_readable_byte_streams#consuming_the_byte_stream)
+ *
+ * ```ts
+ * let buf = new ArrayBuffer(42);
+ * buf = await readFull(readableByteStream, buf);
+ * console.log(new Uint8Array(buf));
+ * ```
+ */
 export async function readFull(
   source: ByteSource,
   buffer: ArrayBuffer,
@@ -85,14 +117,26 @@ export async function readFull(
   return buffer;
 }
 
+/** Write all of `source` into `sink`.
+
+ * ```ts
+ * const txt = new TextEncoder().encode("Hello, World!");
+ * await writeFull(writeableStream, txt);
+ * ```
+ */
 export async function writeFull(sink: ByteSink, source: Uint8Array) {
   const w = sink.writable.getWriter();
   await w.write(source);
   w.releaseLock();
 }
 
-/** Read exactly `n` bytes into a new `Uint8Array` buffer. */
+/** Read exactly `n` bytes into a new `Uint8Array` buffer and return it.
+ *
+ * ```ts
+ * const out: Uint8Array = await readN(readableByteStream, 12);
+ * out.byteLength == 12; // true
+ * ```
+ */
 export async function readN(source: ByteSource, n: number) {
-  const buf = new ArrayBuffer(n);
-  return bytes(await readFull(source, buf));
+  return bytes(await readFull(source, new ArrayBuffer(n)));
 }
