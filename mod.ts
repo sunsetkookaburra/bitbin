@@ -4,6 +4,7 @@
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
 export * from "./types.d.ts";
+export * from "./util.ts";
 export { Buffer } from "./deps.ts";
 
 import { Sink, Source } from "./types.d.ts";
