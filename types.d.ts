@@ -3,15 +3,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
-/** A destination for binary data, such as a file or `Response` body. */
-export interface ByteSink {
-  readonly writable: WritableStream<Uint8Array>;
+/** A destination for stream data, such as a `Response` body. */
+export interface Sink<T> {
+  readonly writable: WritableStream<T>;
 }
 
-/** A source of binary data such as a file or `Request` body.
- * It should have implement a BYOB `ReadableStream`. */
-export interface ByteSource {
-  readonly readable: ReadableStream<Uint8Array>;
+/** A source of stream data such as a `Request` body. */
+export interface Source<T> {
+  readonly readable: ReadableStream<T>;
 }
 
 /** A `Codec<T>` implements a binary data encoder and decoder
@@ -28,6 +27,6 @@ export interface ByteSource {
  */
 export interface Codec<T> {
   readonly label?: string;
-  readonly writeTo: (sink: ByteSink, value: T) => Promise<void>;
-  readonly readFrom: (source: ByteSource) => Promise<T>;
+  readonly writeTo: (sink: Sink<Uint8Array>, value: T) => Promise<void>;
+  readonly readFrom: (source: Source<Uint8Array>) => Promise<T>;
 }

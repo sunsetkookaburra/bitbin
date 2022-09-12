@@ -3,7 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
-import { Codec, readFull, writeFull } from "../mod.ts";
+import { Codec, readFull, write } from "../mod.ts";
 
 export function Utf8(size: number, label = ""): Codec<string> {
   const labelStr = `Utf8[${size}](${label})`;
@@ -16,7 +16,7 @@ export function Utf8(size: number, label = ""): Codec<string> {
           `Utf8 value length '${value.length}' != ${labelStr} length '${size}'`,
         );
       } else {
-        await writeFull(sink, new TextEncoder().encode(value));
+        await write(sink, new TextEncoder().encode(value));
       }
     },
     readFrom: async (source) => {

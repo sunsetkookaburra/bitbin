@@ -9,7 +9,7 @@ import {
   readFull,
   SYSTEM_ENDIAN,
   view,
-  writeFull,
+  write,
 } from "../mod.ts";
 
 interface Primitives {
@@ -38,7 +38,7 @@ function buildCodec<T extends keyof Primitives>(
     label: type,
     writeTo: async (sink, value) => {
       view(buf)[setter](0, value as never, littleEndian);
-      await writeFull(sink, bytes(buf));
+      await write(sink, bytes(buf));
     },
     readFrom: async (source) => {
       buf = await readFull(source, buf);

@@ -3,7 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
-import { bytes, Codec, readFull, writeFull } from "../mod.ts";
+import { bytes, Codec, readFull, write } from "../mod.ts";
 
 export function Bytes(size: number, label = ""): Codec<Uint8Array> {
   const labelStr = `Bytes[${size}](${label})`;
@@ -16,7 +16,7 @@ export function Bytes(size: number, label = ""): Codec<Uint8Array> {
           `Bytes value length '${value.length}' != ${labelStr} length '${size}'`,
         );
       } else {
-        await writeFull(sink, value);
+        await write(sink, value);
       }
     },
     readFrom: async (source) => {
