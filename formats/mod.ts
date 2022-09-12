@@ -9,5 +9,6 @@ export * from "./struct.ts";
 export * from "./tuple.ts";
 export * from "./vec.ts";
 export * from "./bytes.ts";
+export * from "./utf8.ts";
 
 // File Formats
