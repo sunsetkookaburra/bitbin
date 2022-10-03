@@ -5,7 +5,8 @@
 
 import { bytes, Codec, readFull, write } from "../mod.ts";
 
-export function Bytes(size: number, label = ""): Codec<Uint8Array> {
+/** Read and write fixed size byte arrays, but return a reference only valid until the next call per constructed codec. */
+export function BytesRef(size: number, label = ""): Codec<Uint8Array> {
   const labelStr = `Bytes[${size}](${label})`;
   let buf = new ArrayBuffer(size);
   return {
@@ -22,6 +23,27 @@ export function Bytes(size: number, label = ""): Codec<Uint8Array> {
     readFrom: async (source) => {
       buf = await readFull(source, buf);
       return bytes(buf);
+    },
+  };
+}
+
+export function Bytes(size: number, label = ""): Codec<Uint8Array> {
+  const labelStr = `Bytes[${size}](${label})`;
+  let buf = new ArrayBuffer(size);
+  return {
+    "label": labelStr,
+    writeTo: async (sink, value) => {
+      if (value.length != size) {
+        throw new RangeError(
+          `Bytes value length '${value.length}' != ${labelStr} length '${size}'`,
+        );
+      } else {
+        await write(sink, value);
+      }
+    },
+    readFrom: async (source) => {
+      buf = await readFull(source, buf);
+      return bytes(buf.slice(0));
     },
   };
 }
