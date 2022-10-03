@@ -29,20 +29,22 @@ export class DecodeError extends Error {
   }
 }
 
-/** Read bytes to fill `buffer` exactly, with no extra bytes consumed.
+/** **The 'input' buffer becomes detached and must be reassigned with the return value.**
+ *
+ * Read bytes to fill `buffer` exactly, with no extra bytes consumed.
  * `source` should implement BYOB.
  * Returns the buffer used, to replace the input which beomes detached.
- *
- * See how it was implemented:
- * + [web.dev Streams API Guide](https://web.dev/streams/#readable-byte-stream-code-sample)
- * + [Deno GitHub Issue on Detached Buffers](https://github.com/denoland/deno/issues/14382)
- * + [MDN Docs on Using Readable Byte Streams](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API/Using_readable_byte_streams#consuming_the_byte_stream)
  *
  * ```ts
  * let buf = new ArrayBuffer(42);
  * buf = await readFull(readableByteStreamSource, buf);
  * console.log(new Uint8Array(buf));
  * ```
+ *
+ * See how it was implemented:
+ * + [web.dev Streams API Guide](https://web.dev/streams/#readable-byte-stream-code-sample)
+ * + [Deno GitHub Issue on Detached Buffers](https://github.com/denoland/deno/issues/14382)
+ * + [MDN Docs on Using Readable Byte Streams](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API/Using_readable_byte_streams#consuming_the_byte_stream)
  */
 export async function readFull(
   source: Source<Uint8Array>,

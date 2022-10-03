@@ -3,7 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
-import { Codec, write, Buffer } from "../mod.ts";
+import { Buffer, Codec, write } from "../mod.ts";
 import { BytesRef } from "./mod.ts";
 
 /** Encodes and decodes UTF-8 text as null terminated strings,
@@ -11,8 +11,10 @@ import { BytesRef } from "./mod.ts";
 export const CString: Codec<string> = {
   label: "CString",
   writeTo: async (sink, value) => {
-    if (value.includes("\0")) throw new Error("Input 'value' cannot contain nul");
-    const data = new TextEncoder().encode(value+"\0");
+    if (value.includes("\0")) {
+      throw new Error("Input 'value' cannot contain nul");
+    }
+    const data = new TextEncoder().encode(value + "\0");
     await write(sink, data);
   },
   readFrom: async (source) => {

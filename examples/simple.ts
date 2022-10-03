@@ -1,7 +1,5 @@
-#!/usr/bin/env -S deno run -r
-
-import { Buffer, write } from "./mod.ts";
-import { Uint8, Utf8 } from "./formats/mod.ts";
+import { Buffer, write } from "https://deno.land/x/bitbin/mod.ts";
+import { Uint8, Utf8 } from "https://deno.land/x/bitbin/formats/mod.ts";
 
 const buf = new Buffer();
 const enc = new TextEncoder().encode("Hello, World!");

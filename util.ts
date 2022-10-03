@@ -12,7 +12,7 @@
  * value == 9; // true
  * ```
  */
- export function view(source: BufferSource): DataView {
+export function view(source: BufferSource): DataView {
   return (
     "buffer" in source
       ? new DataView(source.buffer, source.byteOffset, source.byteLength)

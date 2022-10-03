@@ -3,14 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
-import {
-  bytes,
-  Codec,
-  readFull,
-  SYSTEM_ENDIAN,
-  view,
-  write,
-} from "../mod.ts";
+import { bytes, Codec, readFull, SYSTEM_ENDIAN, view, write } from "../mod.ts";
 
 interface Primitives {
   "Uint8": number;
