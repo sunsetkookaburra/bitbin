@@ -40,7 +40,7 @@ const Player_t = Struct({
 });
 
 const sink = new Buffer();
-const joe = Player_t.writeTo(sink, {
+Player_t.writeTo(sink, {
   age: 23,
   name: "Joe Bloggs",
   score: 42.3,
