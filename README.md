@@ -4,6 +4,8 @@
 
 Encode and decode binary data formats using TypeScript and the Web Streams API.
 
+**Note:** Prefer using explicit version tag (e.g. `@0.0.4`), especially since `0.0.*` versions are likely to contain small but breaking changes while the API is being settled.
+
 ## Available Data Types
 
 `Uint8`, `Uint16`, `Uint32`, `BigUint64`, `Int8`, `Int16`, `Int32`, `BigInt64`,
