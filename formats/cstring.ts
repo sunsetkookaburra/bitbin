@@ -6,10 +6,12 @@
 import { Codec, write, Buffer } from "../mod.ts";
 import { BytesRef } from "./mod.ts";
 
-/** Encodes and decodes UTF-8 null terminated strings. */
+/** Encodes and decodes UTF-8 text as null terminated strings,
+ * but it must not contain `'\0'`. */
 export const CString: Codec<string> = {
   label: "CString",
   writeTo: async (sink, value) => {
+    if (value.includes("\0")) throw new Error("Input 'value' cannot contain nul");
     const data = new TextEncoder().encode(value+"\0");
     await write(sink, data);
   },
