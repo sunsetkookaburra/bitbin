@@ -1,3 +1,8 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
+
 import { assertEquals } from "https://deno.land/std@0.158.0/testing/asserts.ts";
 import { CString } from "./cstring.ts";
 import { Buffer } from "../mod.ts";
