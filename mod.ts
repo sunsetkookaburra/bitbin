@@ -87,11 +87,11 @@ export async function readFull(
  * `source` should implement BYOB.
  *
  * ```ts
- * const out: Uint8Array = await readNBytes(readableByteStreamSource, 12);
+ * const out: Uint8Array = await readN(readableByteStreamSource, 12);
  * out.byteLength == 12; // true
  * ```
  */
-export async function readNBytes(source: Source<Uint8Array>, n: number) {
+export async function readN(source: Source<Uint8Array>, n: number) {
   return bytes(await readFull(source, new ArrayBuffer(n)));
 }
 
