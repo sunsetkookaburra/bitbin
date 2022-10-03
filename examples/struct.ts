@@ -1,5 +1,10 @@
 import { Buffer } from "https://deno.land/x/bitbin/mod.ts";
-import { Struct, Int8, Float32, CString } from "https://deno.land/x/bitbin/formats/mod.ts";
+import {
+  CString,
+  Float32,
+  Int8,
+  Struct,
+} from "https://deno.land/x/bitbin/formats/mod.ts";
 
 const Player_t = Struct({
   age: Int8,

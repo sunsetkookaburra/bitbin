@@ -7,7 +7,7 @@ import { bytes, Codec, readFull, write } from "../mod.ts";
 
 /** Read and write fixed size byte arrays, but return a reference only valid until the next call per constructed codec. */
 export function BytesRef(size: number, label = ""): Codec<Uint8Array> {
-  const labelStr = `Bytes[${size}](${label})`;
+  const labelStr = `BytesRef[${size}](${label})`;
   let buf = new ArrayBuffer(size);
   return {
     "label": labelStr,
@@ -27,23 +27,14 @@ export function BytesRef(size: number, label = ""): Codec<Uint8Array> {
   };
 }
 
+/** Read and write fixed size byte arrays, useful in structs but otherwise
+ * use `readN`.
+ */
 export function Bytes(size: number, label = ""): Codec<Uint8Array> {
-  const labelStr = `Bytes[${size}](${label})`;
-  let buf = new ArrayBuffer(size);
-  return {
-    "label": labelStr,
-    writeTo: async (sink, value) => {
-      if (value.length != size) {
-        throw new RangeError(
-          `Bytes value length '${value.length}' != ${labelStr} length '${size}'`,
-        );
-      } else {
-        await write(sink, value);
-      }
-    },
-    readFrom: async (source) => {
-      buf = await readFull(source, buf);
-      return bytes(buf.slice(0));
-    },
+  const codec = BytesRef(size, label) as {
+    -readonly [K in keyof Codec<Uint8Array>]: Codec<Uint8Array>[K];
   };
+  codec.label = `Bytes[${size}](${label})`;
+  codec.readFrom = async (source) => (await codec.readFrom(source)).slice(0);
+  return codec;
 }

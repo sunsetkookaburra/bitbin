@@ -2,14 +2,17 @@
 
 > Garbage In, Garbage Out!
 
-Encode and decode binary data formats using TypeScript and the Web Streams API.
+Encode and decode binary data structures using TypeScript and the Web Streams
+API.
 
-**Note:** Prefer using explicit version tag (e.g. `@0.0.4`), especially since `0.0.*` versions are likely to contain small but breaking changes while the API is being settled.
+**Note:** Prefer using explicit version tag (e.g. `@0.0.4`), especially since
+`0.0.*` versions are likely to contain small but breaking changes while the API
+is being settled.
 
 ## Available Data Types
 
 `Uint8`, `Uint16`, `Uint32`, `BigUint64`, `Int8`, `Int16`, `Int32`, `BigInt64`,
-`Bytes`, `Struct`, `Tuple`, `Vec`, `Utf8`
+`Bytes`, `BytesRef`, `Struct`, `Tuple`, `Vec`, `Utf8`, `CString`
 
 ## Examples
 
@@ -33,7 +36,12 @@ console.log(text);
 
 ```ts
 import { Buffer } from "https://deno.land/x/bitbin/mod.ts";
-import { Struct, Int8, Float32, CString } from "https://deno.land/x/bitbin/formats/mod.ts";
+import {
+  CString,
+  Float32,
+  Int8,
+  Struct,
+} from "https://deno.land/x/bitbin/formats/mod.ts";
 
 const Player_t = Struct({
   age: Int8,
