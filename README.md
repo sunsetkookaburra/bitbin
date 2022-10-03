@@ -40,14 +40,14 @@ const Player_t = Struct({
 });
 
 const sink = new Buffer();
-Player_t.writeTo(sink, {
+await Player_t.writeTo(sink, {
   age: 23,
   name: "Joe Bloggs",
   score: 42.3,
 });
 
 console.log(sink.bytes());
-console.log(Player_t.readFrom(sink));
+console.log(await Player_t.readFrom(sink));
 ```
 
 ## License
