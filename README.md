@@ -19,8 +19,8 @@ is being settled.
 Also see [examples/](./examples/) directory.
 
 ```ts
-import { Buffer, write } from "https://deno.land/x/bitbin/mod.ts";
-import { Uint8, Utf8 } from "https://deno.land/x/bitbin/formats/mod.ts";
+import { Buffer, write } from "https://deno.land/x/bitbin@0.0.4/mod.ts";
+import { Uint8, Utf8 } from "https://deno.land/x/bitbin@0.0.4/formats/mod.ts";
 
 const buf = new Buffer();
 const enc = new TextEncoder().encode("Hello, World!");
@@ -35,13 +35,13 @@ console.log(text);
 ```
 
 ```ts
-import { Buffer } from "https://deno.land/x/bitbin/mod.ts";
+import { Buffer } from "https://deno.land/x/bitbin@0.0.4/mod.ts";
 import {
   CString,
   Float32,
   Int8,
   Struct,
-} from "https://deno.land/x/bitbin/formats/mod.ts";
+} from "https://deno.land/x/bitbin@0.0.4/formats/mod.ts";
 
 const Player_t = Struct({
   age: Int8,
