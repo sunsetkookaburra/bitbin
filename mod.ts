@@ -49,7 +49,7 @@ export class DecodeError extends Error {
 export async function readFull(
   source: Source<Uint8Array>,
   buffer: ArrayBuffer,
-) {
+): Promise<ArrayBuffer> {
   let pos = 0;
   // Setup a BYOB reader, which enables buffer oriented (and zero-copy) reads.
   const r = source.readable.getReader({ mode: "byob" });
@@ -91,7 +91,10 @@ export async function readFull(
  * out.byteLength == 12; // true
  * ```
  */
-export async function readN(source: Source<Uint8Array>, n: number) {
+export async function readN(
+  source: Source<Uint8Array>,
+  n: number,
+): Promise<Uint8Array> {
   return bytes(await readFull(source, new ArrayBuffer(n)));
 }
 
@@ -103,7 +106,7 @@ export async function readN(source: Source<Uint8Array>, n: number) {
  * await write(buf, txt);
  * ```
  */
-export async function write<T>(sink: Sink<T>, chunk: T) {
+export async function write<T>(sink: Sink<T>, chunk: T): Promise<void> {
   const w = sink.writable.getWriter();
   await w.write(chunk);
   w.releaseLock();
