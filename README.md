@@ -14,6 +14,30 @@ is being settled.
 `Uint8`, `Uint16`, `Uint32`, `BigUint64`, `Int8`, `Int16`, `Int32`, `BigInt64`,
 `Bytes`, `BytesRef`, `Struct`, `Tuple`, `Vec`, `Utf8`, `CString`
 
+## Available Utilities
+
+```ts
+// util.ts
+function bytes(source: BufferSource): Uint8Array;
+function cat(arrays: BufferSource[]): Uint8Array;
+function view(source: BufferSource): DataView;
+
+// mod.ts
+const SYSTEM_ENDIAN: Endian;
+async function readFull(
+  source: Source<Uint8Array>,
+  buffer: ArrayBuffer,
+): Promise<ArrayBuffer>;
+async function readN(
+  source: Source<Uint8Array>,
+  n: number,
+): Promise<Uint8Array>;
+async function write<T>(
+  sink: Sink<T>,
+  chunk: T,
+): Promise<void>;
+```
+
 ## Examples
 
 Also see [examples/](./examples/) directory.
