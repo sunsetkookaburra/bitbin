@@ -3,12 +3,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
-import { bytes, Codec, readFull, write } from "../mod.ts";
+import { Codec, write, ZeroCopyBuf } from "../mod.ts";
 
 /** Read and write fixed size byte arrays, but return a reference only valid until the next call per constructed codec. */
 export function BytesRef(size: number, label = ""): Codec<Uint8Array> {
   const labelStr = `BytesRef[${size}](${label})`;
-  let buf = new ArrayBuffer(size);
+  const zcbuf = new ZeroCopyBuf(size);
   return {
     "label": labelStr,
     writeTo: async (sink, value) => {
@@ -21,8 +21,7 @@ export function BytesRef(size: number, label = ""): Codec<Uint8Array> {
       }
     },
     readFrom: async (source) => {
-      buf = await readFull(source, buf);
-      return bytes(buf);
+      return await zcbuf.moveExactFrom(source);
     },
   };
 }

@@ -3,11 +3,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
-import { Codec, readFull, write } from "../mod.ts";
+import { Codec, write, ZeroCopyBuf } from "../mod.ts";
 
 export function Utf8(size: number, label = ""): Codec<string> {
   const labelStr = `Utf8[${size}](${label})`;
-  let buf = new ArrayBuffer(size);
+  const zcbuf = new ZeroCopyBuf(size);
   return {
     "label": labelStr,
     writeTo: async (sink, value) => {
@@ -20,8 +20,7 @@ export function Utf8(size: number, label = ""): Codec<string> {
       }
     },
     readFrom: async (source) => {
-      buf = await readFull(source, buf);
-      return new TextDecoder().decode(buf);
+      return new TextDecoder().decode(await zcbuf.moveExactFrom(source));
     },
   };
 }
