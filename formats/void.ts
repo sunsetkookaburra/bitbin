@@ -3,14 +3,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
-// General Primitives
-export * from "./primitive.ts";
-export * from "./struct.ts";
-export * from "./tuple.ts";
-export * from "./vec.ts";
-export * from "./bytes.ts";
-export * from "./utf8.ts";
-export * from "./cstring.ts";
-export * from "./void.ts";
+import { Codec } from "../mod.ts";
 
-// File Formats
+export const Void: Codec<void> = {
+  label: "Void",
+  writeTo: async () => {},
+  readFrom: async () => {},
+};
