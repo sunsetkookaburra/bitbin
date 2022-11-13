@@ -32,7 +32,14 @@ export class DecodeError extends Error {
 export class ZeroCopyBuf implements Readonly<ArrayBufferView> {
   #buf: ArrayBuffer;
 
-  /** Create a new container for zero-copy byob stream operations. */
+  /** Create a new container for zero-copy byob stream operations.
+   *
+   * ```ts
+   * const zcbuf = new ZeroCopyBuf(42);
+   * const window = await zcbuf.moveExactFrom(source);
+   * console.log(window);
+   * ```
+  */
   constructor(size: number) {
     this.#buf = new ArrayBuffer(size);
   }
@@ -110,6 +117,16 @@ export class ZeroCopyBuf implements Readonly<ArrayBufferView> {
     return bytes(this);
   }
 
+  /** Perform a zero-copy byob read from `source`, filling up exactly the
+   * specified window. In the case that not enough bytes could be read,
+   * throw an error. Returns a `Uint8Array` window into the internal buffer.
+   *
+   * ```ts
+   * const zcbuf = new ZeroCopyBuf(42);
+   * const window = await zcbuf.moveExactFrom(source);
+   * console.log(window);
+   * ```
+  */
   async moveExactFrom(
     source: Source<Uint8Array>,
     moveOffset?: number,

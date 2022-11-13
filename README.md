@@ -24,10 +24,6 @@ function view(source: BufferSource): DataView;
 
 // mod.ts
 const SYSTEM_ENDIAN: Endian;
-async function readFull(
-  source: Source<Uint8Array>,
-  buffer: ArrayBuffer,
-): Promise<ArrayBuffer>;
 async function readN(
   source: Source<Uint8Array>,
   n: number,
@@ -82,6 +78,14 @@ await Player_t.writeTo(sink, {
 
 console.log(sink.bytes());
 console.log(await Player_t.readFrom(sink));
+```
+
+```ts
+import { ZeroCopyBuf } from "https://deno.land/x/bitbin@0.0.4/mod.ts";
+
+const zcbuf = new ZeroCopyBuf(23);
+const window = await zcbuf.moveExactFrom(source);
+console.log(window);
 ```
 
 ## License
