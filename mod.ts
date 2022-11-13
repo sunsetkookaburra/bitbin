@@ -80,13 +80,12 @@ export class ZeroCopyBuf implements Readonly<ArrayBufferView> {
     let pos = 0;
     // Setup a BYOB reader, which enables buffer oriented (and zero-copy) reads.
     const r = source.readable.getReader({ mode: "byob" });
-    const limit = Math.min(moveCount ?? this.byteLength, this.byteLength) -
-      moveOffset;
+    const limit = Math.min(moveOffset + (moveCount ?? this.byteLength), this.byteLength);
     while (pos < limit) {
       const { value, done } = await r.read(
         // Create a new ArrayBufferView (of which Uint8Array is one).
         // This gives a window / slot to be read into so we can read exactly what we want.
-        new Uint8Array(this.#buf, moveOffset + pos, this.#buf.byteLength - pos),
+        new Uint8Array(this.#buf, moveOffset + pos, limit - pos),
       );
       if (value !== undefined) {
         // We've successfully got some data from our source
