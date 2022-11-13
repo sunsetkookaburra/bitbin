@@ -39,7 +39,7 @@ export class ZeroCopyBuf implements Readonly<ArrayBufferView> {
    * const window = await zcbuf.moveExactFrom(source);
    * console.log(window);
    * ```
-  */
+   */
   constructor(size: number) {
     this.#buf = new ArrayBuffer(size);
   }
@@ -77,15 +77,20 @@ export class ZeroCopyBuf implements Readonly<ArrayBufferView> {
     moveOffset = 0,
     moveCount = this.byteLength,
   ): Promise<Uint8Array> {
-    let pos = moveOffset;
+    let nread = 0;
     // Setup a BYOB reader, which enables buffer oriented (and zero-copy) reads.
     const r = source.readable.getReader({ mode: "byob" });
-    const limit = Math.min(moveOffset + (moveCount ?? this.byteLength), this.byteLength);
-    while (pos < limit) {
+    if (moveCount < 0 || moveCount > this.byteLength) {
+      throw new RangeError(
+        "Invalid range, must be: 0 <= moveCount <= ZeroCopyBuf.byteLength",
+      );
+    }
+    const limit = Math.min(moveCount ?? this.byteLength, this.byteLength);
+    while (nread < limit) {
       const { value, done } = await r.read(
         // Create a new ArrayBufferView (of which Uint8Array is one).
         // This gives a window / slot to be read into so we can read exactly what we want.
-        new Uint8Array(this.#buf, moveOffset + pos, limit - pos),
+        new Uint8Array(this.#buf, moveOffset + nread, limit - nread),
       );
       if (value !== undefined) {
         // We've successfully got some data from our source
@@ -97,7 +102,7 @@ export class ZeroCopyBuf implements Readonly<ArrayBufferView> {
         // which is a Uint8Array view of the bytes successfully read.
         this.#buf = value.buffer as SharedArrayBuffer;
         // The byte length of the view is how much was read.
-        pos += value.byteLength;
+        nread += value.byteLength;
       } else {
         r.releaseLock();
         throw new DecodeError("Unexpected stream cancellation");
@@ -125,7 +130,7 @@ export class ZeroCopyBuf implements Readonly<ArrayBufferView> {
    * const window = await zcbuf.moveExactFrom(source);
    * console.log(window);
    * ```
-  */
+   */
   async moveExactFrom(
     source: Source<Uint8Array>,
     moveOffset?: number,
