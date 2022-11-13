@@ -77,7 +77,7 @@ export class ZeroCopyBuf implements Readonly<ArrayBufferView> {
     moveOffset = 0,
     moveCount = this.byteLength,
   ): Promise<Uint8Array> {
-    let pos = 0;
+    let pos = moveOffset;
     // Setup a BYOB reader, which enables buffer oriented (and zero-copy) reads.
     const r = source.readable.getReader({ mode: "byob" });
     const limit = Math.min(moveOffset + (moveCount ?? this.byteLength), this.byteLength);
