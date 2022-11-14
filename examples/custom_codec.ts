@@ -1,9 +1,9 @@
 import {
-  Buffer,
   asBytes,
+  Buffer,
   Codec,
-  ZeroCopyBuf,
   write,
+  ZeroCopyBuf,
 } from "https://deno.land/x/bitbin/mod.ts";
 import {
   Float32,

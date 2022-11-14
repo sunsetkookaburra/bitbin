@@ -3,7 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
-import { Buffer, ZeroCopyBuf, Codec, write } from "../mod.ts";
+import { Buffer, Codec, write, ZeroCopyBuf } from "../mod.ts";
 import { BytesRef } from "./mod.ts";
 
 const txtEnc = new TextEncoder();
@@ -11,8 +11,11 @@ const txtDec = new TextDecoder();
 
 /** Encode and decode a length-prefixed UTF-8 string.
  *
- * **Set `maxLength` to avoid string length overflows on encode.** */
-export function PrefixString(prefix: Codec<number>, maxLength?: number): Codec<string> {
+ * **Set `maxLength` to avoid string length overflows on encode.***/
+export function PrefixString(
+  prefix: Codec<number>,
+  maxLength?: number,
+): Codec<string> {
   return {
     writeTo: async (sink, value) => {
       const txt = txtEnc.encode(value);
@@ -26,7 +29,7 @@ export function PrefixString(prefix: Codec<number>, maxLength?: number): Codec<s
       const size = await prefix.readFrom(source);
       const txt = await Utf8(size).readFrom(source);
       return txt;
-    }
+    },
   };
 }
 
