@@ -1,8 +1,8 @@
 import {
   Buffer,
-  bytes,
+  asBytes,
   Codec,
-  readFull,
+  ZeroCopyBuf,
   write,
 } from "https://deno.land/x/bitbin/mod.ts";
 import {
@@ -15,11 +15,11 @@ import {
  * Ensures they fit, including the terminator, otherwise
  * truncates. */
 export function CStrArr(size: number): Codec<string> {
-  let buf = new ArrayBuffer(size);
+  const zcbuf = new ZeroCopyBuf(size);
   return {
     label: `CStringFixed[${size}]`,
     writeTo: async (sink, value) => {
-      const u8view = bytes(buf);
+      const u8view = asBytes(zcbuf);
       if (value.includes("\0")) {
         throw new Error("Input 'value' cannot contain nul");
       }
@@ -29,8 +29,7 @@ export function CStrArr(size: number): Codec<string> {
       await write(sink, u8view);
     },
     readFrom: async (source) => {
-      buf = await readFull(source, buf);
-      const u8view = bytes(buf);
+      const u8view = asBytes(await zcbuf.fillExactFrom(source));
       const len = u8view.findIndex((v) => v == 0);
       return new TextDecoder().decode(
         u8view.subarray(0, len != -1 ? len : u8view.byteLength),

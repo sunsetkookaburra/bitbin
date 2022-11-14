@@ -18,7 +18,7 @@ is being settled.
 
 ```ts
 // util.ts
-function bytes(source: BufferSource): Uint8Array;
+function asBytes(source: BufferSource): Uint8Array;
 function cat(arrays: BufferSource[]): Uint8Array;
 function view(source: BufferSource): DataView;
 

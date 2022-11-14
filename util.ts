@@ -24,12 +24,12 @@ export function view(source: BufferSource): DataView {
  *
  * ```ts
  * const data = new Uint16Array([5, 4]);
- * const ref = bytes(data);
+ * const ref = asBytes(data);
  * // assuming little-endian
  * console.log(ref); // Uint8Array(4) [ 5, 0, 4, 0 ]
  * ```
  */
-export function bytes(source: BufferSource): Uint8Array {
+export function asBytes(source: BufferSource): Uint8Array {
   return (
     "buffer" in source
       ? new Uint8Array(source.buffer, source.byteOffset, source.byteLength)
@@ -58,7 +58,7 @@ export function cat(arrays: BufferSource[]): Uint8Array {
   const buf = new Uint8Array(len);
   // fill new buffer by copying
   for (const arr of arrays) {
-    buf.set(bytes(arr), offset);
+    buf.set(asBytes(arr), offset);
     offset += arr.byteLength;
   }
   return buf;

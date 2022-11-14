@@ -8,7 +8,7 @@ export * from "./util.ts";
 export { Buffer } from "./deps.ts";
 
 import { Sink, Source } from "./types.d.ts";
-import { bytes } from "./util.ts";
+import { asBytes } from "./util.ts";
 
 /** Represents the byte-order used to encode numbers. */
 export type Endian = "be" | "le";
@@ -19,7 +19,7 @@ export type Endian = "be" | "le";
  * is a concern for JavaScript applications)*. */
 export const SYSTEM_ENDIAN: Endian = (() => {
   const a = new Uint16Array([0x1234]);
-  return (bytes(a)[0] == 0x12) ? "be" : "le";
+  return (asBytes(a)[0] == 0x12) ? "be" : "le";
 })();
 
 export class DecodeError extends Error {

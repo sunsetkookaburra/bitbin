@@ -4,7 +4,7 @@
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
 import { assertEquals } from "https://deno.land/std@0.163.0/testing/asserts.ts";
-import { CString } from "./cstring.ts";
+import { CString } from "./string.ts";
 import { Buffer } from "../mod.ts";
 
 Deno.test("CString read", async () => {

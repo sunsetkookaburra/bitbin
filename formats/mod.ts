@@ -9,8 +9,7 @@ export * from "./struct.ts";
 export * from "./tuple.ts";
 export * from "./vec.ts";
 export * from "./bytes.ts";
-export * from "./utf8.ts";
-export * from "./cstring.ts";
+export * from "./string.ts";
 export * from "./void.ts";
 
 // File Formats

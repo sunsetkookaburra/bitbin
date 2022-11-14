@@ -4,7 +4,7 @@
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
 import {
-  bytes,
+  asBytes,
   Codec,
   SYSTEM_ENDIAN,
   view,
@@ -38,7 +38,7 @@ function buildCodec<T extends keyof Primitives>(
     label: type,
     writeTo: async (sink, value) => {
       view(zcbuf)[setter](0, value as never, littleEndian);
-      await write(sink, bytes(zcbuf));
+      await write(sink, asBytes(zcbuf));
     },
     readFrom: async (source) => {
       return view(await zcbuf.fillExactFrom(source))[getter](

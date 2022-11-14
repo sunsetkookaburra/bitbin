@@ -3,8 +3,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
-import { Buffer, Codec, write } from "../mod.ts";
+import { Buffer, ZeroCopyBuf, Codec, write } from "../mod.ts";
 import { BytesRef } from "./mod.ts";
+
+const txtEnc = new TextEncoder();
+const txtDec = new TextDecoder();
 
 /** Encodes and decodes UTF-8 text as null terminated strings,
  * but it must not contain `'\0'`. */
@@ -29,3 +32,23 @@ export const CString: Codec<string> = {
     return new TextDecoder().decode(buf.bytes()).slice(0, -1);
   },
 };
+
+export function Utf8(size: number, label = ""): Codec<string> {
+  const labelStr = `Utf8[${size}](${label})`;
+  const zcbuf = new ZeroCopyBuf(size);
+  return {
+    "label": labelStr,
+    writeTo: async (sink, value) => {
+      if (value.length != size) {
+        throw new RangeError(
+          `Utf8 value length '${value.length}' != ${labelStr} length '${size}'`,
+        );
+      } else {
+        await write(sink, txtEnc.encode(value));
+      }
+    },
+    readFrom: async (source) => {
+      return txtDec.decode(await zcbuf.fillExactFrom(source));
+    },
+  };
+}
