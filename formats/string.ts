@@ -9,6 +9,27 @@ import { BytesRef } from "./mod.ts";
 const txtEnc = new TextEncoder();
 const txtDec = new TextDecoder();
 
+/** Encode and decode a length-prefixed UTF-8 string.
+ *
+ * **Set `maxLength` to avoid string length overflows.** */
+export function PrefixString(prefix: Codec<number>, maxLength?: number): Codec<string> {
+  return {
+    writeTo: async (sink, value) => {
+      const txt = txtEnc.encode(value);
+      if (maxLength !== undefined && txt.byteLength > maxLength) {
+        throw new RangeError("Encoded string would be too long");
+      }
+      await prefix.writeTo(sink, txt.byteLength);
+      await write(sink, txt);
+    },
+    readFrom: async (source) => {
+      const size = await prefix.readFrom(source);
+      const txt = await Utf8(size).readFrom(source);
+      return txt;
+    }
+  };
+}
+
 /** Encodes and decodes UTF-8 text as null terminated strings,
  * but it must not contain `'\0'`. */
 export const CString: Codec<string> = {

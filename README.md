@@ -12,7 +12,7 @@ is being settled.
 ## Available Data Types
 
 `Uint8`, `Uint16`, `Uint32`, `BigUint64`, `Int8`, `Int16`, `Int32`, `BigInt64`,
-`Bytes`, `BytesRef`, `Struct`, `Tuple`, `Vec`, `Utf8`, `CString`
+`Bytes`, `BytesRef`, `Struct`, `Tuple`, `Vec`, `Utf8`, `CString`, `PrefixString`
 
 ## Available Utilities
 
