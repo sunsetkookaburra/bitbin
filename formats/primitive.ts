@@ -41,7 +41,7 @@ function buildCodec<T extends keyof Primitives>(
       await write(sink, bytes(zcbuf));
     },
     readFrom: async (source) => {
-      return view(await zcbuf.moveExactFrom(source))[getter](
+      return view(await zcbuf.fillExactFrom(source))[getter](
         0,
         littleEndian,
       ) as Primitives[T];

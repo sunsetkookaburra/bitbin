@@ -84,7 +84,7 @@ console.log(await Player_t.readFrom(sink));
 import { ZeroCopyBuf } from "https://deno.land/x/bitbin@0.0.4/mod.ts";
 
 const zcbuf = new ZeroCopyBuf(23);
-const window = await zcbuf.moveExactFrom(source);
+const window = await zcbuf.fillExactFrom(source);
 console.log(window);
 ```
 

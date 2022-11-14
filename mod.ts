@@ -54,14 +54,14 @@ export class ZeroCopyBuf implements Readonly<ArrayBufferView> {
     return 0;
   }
 
-  /** Read bytes until `ZeroCopyBuf` filled, or end of file.
-   * `source` should implement BYOB.
+  /** Read bytes from a BYOB stream, until specified window of `ZeroCopyBuf`
+   *   filled or the end of the stream is reached.
    * Returns `Uint8Array` view on section of `ZeroCopyBuf` filled by read.
-   * (will be shorter than `ZeroCopyBuf.byteLength`
-   * or `n` if EOF reached or stream cancelled).
+   *
+   * **Note: returned `Uint8Array` may be shorter than `limit`.**
    *
    * ```ts
-   * const v = await buf.moveFrom(r);
+   * const v = await buf.fillFrom(r);
    * if (v.byteLength != buf.byteLength) {
    *   console.log("End of stream reached");
    * }
@@ -72,53 +72,43 @@ export class ZeroCopyBuf implements Readonly<ArrayBufferView> {
    * + [Deno GitHub Issue on Detached Buffers](https://github.com/denoland/deno/issues/14382)
    * + [MDN Docs on Using Readable Byte Streams](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API/Using_readable_byte_streams#consuming_the_byte_stream)
    */
-  async moveFrom(
+  async fillFrom(
     source: Source<Uint8Array>,
-    moveOffset = 0,
-    moveCount = this.byteLength,
+    offset = 0,
+    limit = this.byteLength,
   ): Promise<Uint8Array> {
     let nread = 0;
     // Setup a BYOB reader, which enables buffer oriented (and zero-copy) reads.
     const r = source.readable.getReader({ mode: "byob" });
-    if (moveCount < 0 || moveCount > this.byteLength) {
-      throw new RangeError(
-        "Invalid range, must be: 0 <= moveCount <= ZeroCopyBuf.byteLength",
-      );
-    }
-    const limit = Math.min(moveCount ?? this.byteLength, this.byteLength);
     while (nread < limit) {
       const { value, done } = await r.read(
         // Create a new ArrayBufferView (of which Uint8Array is one).
         // This gives a window / slot to be read into so we can read exactly what we want.
-        new Uint8Array(this.#buf, moveOffset + nread, limit - nread),
+        new Uint8Array(this.#buf, offset + nread, limit - nread),
       );
       if (value !== undefined) {
-        // We've successfully got some data from our source
-        // Because we passed in our buffer to a BYOB reader (via the Uint8Array constructor above)
-        // The ArrayBuffer has been detached. This would normally be caught but a bug in Deno means
-        // it just gets treated as a zero-filled buffer (making one think nothing actually was read).
+        // We've successfully got some data from our source; however, because
+        //   we passed in our this.#buf to a BYOB reader (via Uint8Array
+        //   constructor above) the ArrayBuffer has become detached.
+        // Typically if you access a detached buffer it's obvious because it has
+        //   has zero elements, but a bug in Deno means it appears as a zero-
+        //   filled buffer (making one think nothing, or only zeros, were read).
         // See https://github.com/denoland/deno/issues/14382#issue-1213634663
-        // Our detached array buffer can be returned back via 'value',
-        // which is a Uint8Array view of the bytes successfully read.
-        this.#buf = value.buffer as SharedArrayBuffer;
+        // We can claw back a detached array buffer via 'value',
+        //   which is a Uint8Array view of the bytes successfully read.
+        this.#buf = value.buffer;
         // The byte length of the view is how much was read.
         nread += value.byteLength;
       } else {
-        r.releaseLock();
-        throw new DecodeError("Unexpected stream cancellation");
+        // stream cancelled
+        break;
       }
-      if (done) {
-        // We've already reached EOF, thus unable to fill target.
-        // Release lock in case it can be rescued (I'm unsure on this).
-        r.releaseLock();
-        // Currently throw a decode error, but may be an EOF in future.
-        throw new DecodeError("Unexpected end of source");
-      }
+      // end of stream
+      if (done) break;
     }
     // If we didn't free the reader, no one would be able to read from the source again.
     r.releaseLock();
-    // pos ends up as the total number of bytes read.
-    return bytes(this);
+    return new Uint8Array(this.#buf, offset, nread);
   }
 
   /** Perform a zero-copy byob read from `source`, filling up exactly the
@@ -127,19 +117,17 @@ export class ZeroCopyBuf implements Readonly<ArrayBufferView> {
    *
    * ```ts
    * const zcbuf = new ZeroCopyBuf(42);
-   * const window = await zcbuf.moveExactFrom(source);
+   * const window = await zcbuf.fillExactFrom(source);
    * console.log(window);
    * ```
    */
-  async moveExactFrom(
+  async fillExactFrom(
     source: Source<Uint8Array>,
-    moveOffset?: number,
-    moveCount?: number,
+    offset = 0,
+    count = this.byteLength,
   ): Promise<Uint8Array> {
-    const window = await this.moveFrom(source, moveOffset, moveCount);
-    if (window.byteLength != this.byteLength) {
-      throw new DecodeError("Unexpected EOF");
-    }
+    const window = await this.fillFrom(source, offset, count);
+    if (window.byteLength != count) throw new DecodeError("Unexpected EOF");
     return window;
   }
 }
@@ -156,7 +144,7 @@ export async function readN(
   source: Source<Uint8Array>,
   n: number,
 ): Promise<Uint8Array> {
-  return await new ZeroCopyBuf(n).moveExactFrom(source);
+  return await new ZeroCopyBuf(n).fillExactFrom(source);
 }
 
 /** Write a chunk into a Stream Sink.

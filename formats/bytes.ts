@@ -21,7 +21,7 @@ export function BytesRef(size: number, label = ""): Codec<Uint8Array> {
       }
     },
     readFrom: async (source) => {
-      return await zcbuf.moveExactFrom(source);
+      return await zcbuf.fillExactFrom(source);
     },
   };
 }

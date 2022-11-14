@@ -20,7 +20,7 @@ export function Utf8(size: number, label = ""): Codec<string> {
       }
     },
     readFrom: async (source) => {
-      return new TextDecoder().decode(await zcbuf.moveExactFrom(source));
+      return new TextDecoder().decode(await zcbuf.fillExactFrom(source));
     },
   };
 }
