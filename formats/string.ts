@@ -11,7 +11,7 @@ const txtDec = new TextDecoder();
 
 /** Encode and decode a length-prefixed UTF-8 string.
  *
- * **Set `maxLength` to avoid string length overflows.** */
+ * **Set `maxLength` to avoid string length overflows on encode.** */
 export function PrefixString(prefix: Codec<number>, maxLength?: number): Codec<string> {
   return {
     writeTo: async (sink, value) => {
