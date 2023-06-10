@@ -11,5 +11,6 @@ export * from "./vec.ts";
 export * from "./bytes.ts";
 export * from "./string.ts";
 export * from "./void.ts";
+export * from "./vlq.ts";
 
 // File Formats
