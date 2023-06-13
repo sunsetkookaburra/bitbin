@@ -7,14 +7,13 @@ type WriteType<T> = T extends [TransformStream<infer I>, ...unknown[]] ? I : nev
 type ReadType<T> = T extends [...unknown[], TransformStream<unknown, infer O>] ? O : never;
 
 /** A pipe-checker that validates (correctly re-writes) a theoretical pipeline */
-type Transforms<T>
-// Suppose some tuple 'T'
-= T extends [TransformStream<infer I, infer M>, TransformStream<unknown, infer N>, ...infer Rest extends [...TransformStream[]]]
+type Transforms<T> = (
+  // Suppose some tuple 'T'
+  T extends [TransformStream<infer I, infer M>, TransformStream<unknown, infer N>, ...infer Rest extends [...TransformStream[]]]
   // To be correct, it should look like any of the following terminals/leafs ...
   ? [TransformStream<I, M>, ...Transforms<[TransformStream<M, N>, ...Rest]>]
-  : T extends [TransformStream]
-    ? T
-    : [...TransformStream[]];
+  : T extends [TransformStream] ? T : [...TransformStream[]]
+);
 
 export class PipelineStream<T> implements TransformStream<WriteType<T>, ReadType<T>> {
   #writable: WritableStream<WriteType<T>>;
