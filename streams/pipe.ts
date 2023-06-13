@@ -15,7 +15,7 @@ type Transforms<T> = (
   : T extends [TransformStream] ? T : [...TransformStream[]]
 );
 
-export class PipelineStream<T> implements TransformStream<WriteType<T>, ReadType<T>> {
+export class PipelineStream<T = [TransformStream, ...TransformStream[]]> implements TransformStream<WriteType<T>, ReadType<T>> {
   #writable: WritableStream<WriteType<T>>;
   #readable: ReadableStream<ReadType<T>>;
 
