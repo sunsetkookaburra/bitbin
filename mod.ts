@@ -147,16 +147,33 @@ export async function readN(
   return await new ZeroCopyBuf(n).fillExactFrom(source);
 }
 
-/** Write a chunk into a Stream Sink.
-
+/** Write a chunk, or chunks pulled from an Iterable, into a Stream Sink.
+ *
  * ```ts
  * const buf = new Buffer();
  * const txt = new TextEncoder().encode("Hello, World!");
  * await write(buf, txt);
  * ```
  */
-export async function write<T>(sink: Sink<T>, chunk: T): Promise<void> {
+export async function write<T>(
+  sink: Sink<T>,
+  data: T | Iterable<T> | AsyncIterable<T>,
+): Promise<void> {
   const w = sink.writable.getWriter();
-  await w.write(chunk);
+  if (typeof data == "object" && data !== null) {
+    if (Symbol.iterator in data) {
+      for (const chunk of data) {
+        await w.write(chunk);
+      }
+    } else if (Symbol.asyncIterator in data) {
+      for await (const chunk of data) {
+        await w.write(chunk);
+      }
+    } else {
+      await w.write(data);
+    }
+  } else {
+    await w.write(data);
+  }
   w.releaseLock();
 }
