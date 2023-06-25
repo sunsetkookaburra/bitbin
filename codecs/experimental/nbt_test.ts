@@ -1,0 +1,48 @@
+import { assertEquals } from "https://deno.land/std@0.155.0/testing/asserts.ts";
+import { Buffer } from "https://deno.land/std@0.155.0/streams/buffer.ts";
+import { NBT } from "./nbt.ts";
+
+const data = new Uint8Array([
+  0x0A,
+  0x00,
+  0x0B,
+  0x68,
+  0x65,
+  0x6C,
+  0x6C,
+  0x6F,
+  0x20,
+  0x77,
+  0x6F,
+  0x72,
+  0x6C,
+  0x64,
+  0x08,
+  0x00,
+  0x04,
+  0x6E,
+  0x61,
+  0x6D,
+  0x65,
+  0x00,
+  0x09,
+  0x42,
+  0x61,
+  0x6E,
+  0x61,
+  0x6E,
+  0x72,
+  0x61,
+  0x6D,
+  0x61,
+  0x00,
+]);
+
+Deno.test({
+  name: "hello_nbt",
+  async fn() {
+    assertEquals(await NBT.readFrom(new Buffer(data)), {
+      "hello world": { "name": "Bananrama" },
+    });
+  },
+});

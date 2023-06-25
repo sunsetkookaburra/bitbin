@@ -31,9 +31,9 @@ export function view(source: BufferSource): DataView {
  */
 export function asBytes(source: BufferSource): Uint8Array {
   return (
-    "buffer" in source
-      ? new Uint8Array(source.buffer, source.byteOffset, source.byteLength)
-      : new Uint8Array(source)
+    source instanceof ArrayBuffer
+      ? new Uint8Array(source)
+      : new Uint8Array(source.buffer, source.byteOffset, source.byteLength)
   );
 }
 
@@ -62,4 +62,13 @@ export function cat(arrays: BufferSource[]): Uint8Array {
     offset += arr.byteLength;
   }
   return buf;
+}
+
+export function getByteWindow(source: BufferSource, bitOffset = 0): number {
+  const buf = asBytes(source);
+  const i = Math.trunc(bitOffset / 8);
+  const n = bitOffset % 8;
+  const hi = ((buf[i] ?? 0) << n) & 0xFF;
+  const lo = ((buf[i + 1] ?? 0) & 0xFF) >> (8 - n);
+  return hi | lo;
 }
