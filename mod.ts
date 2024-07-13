@@ -212,6 +212,32 @@ export async function write<T>(
   w.releaseLock();
 }
 
+/** Try to read `n` chunks from a Stream `Source<T>`,
+ * or as many up to an early EOF.
+ *
+ * `n` may be `Infinity` to collect all available chunks,
+ * provided `source` is a finite stream.
+ *
+ * ```ts
+ * const out = await take(source, 3);
+ * out.length <= 3; // true
+ * ```
+ */
+export async function gather<T>(
+  source: Source<T>,
+  n = Infinity,
+): Promise<T[]> {
+  const out = [];
+  const r = source.readable.getReader();
+  for (let i = 0; i < n; ++i) {
+    const { done, value } = await r.read();
+    if (value !== undefined) out.push(value);
+    if (done) break;
+  }
+  r.releaseLock();
+  return out;
+}
+
 export async function encode<T>(codec: Codec<T>, value: T): Promise<Uint8Array> {
   const buf = new Buffer();
   await codec.writeTo(buf, value);
