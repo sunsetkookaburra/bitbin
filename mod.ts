@@ -8,7 +8,7 @@ export * from "./util.ts";
 export { Buffer } from "./deps.ts";
 
 import { Buffer } from "./deps.ts";
-import { Codec, Dec, Enc, Sink, Source } from "./types.d.ts";
+import { Enc, Sink, Source } from "./types.d.ts";
 import { asBytes } from "./util.ts";
 
 /** Represents the byte-order used to encode numbers. */
