@@ -4,7 +4,6 @@
  * Copyright (C) Oliver Lenehan (sunsetkookaburra), 2022 */
 
 import {
-  asBytes,
   Codec,
   SYSTEM_ENDIAN,
   view,
@@ -32,16 +31,17 @@ function buildCodec<T extends keyof Primitives>(
   const size = parseInt(type.match(/\d+/)![0]) / 8;
   const getter: `get${T}` = `get${type}`;
   const setter: `set${T}` = `set${type}`;
-  if (type === "Int8" || type === "Uint8") littleEndian = false;
-  const zcbuf = new ZeroCopyBuf(size);
+  if (type === "Int8" || type === "Uint8") littleEndian = undefined as unknown as boolean;
   return {
     label: type,
     writeTo: async (sink, value) => {
-      view(zcbuf)[setter](0, value as never, littleEndian);
-      await write(sink, asBytes(zcbuf));
+      const buf = new Uint8Array(size);
+      view(buf)[setter](0, value as never, littleEndian);
+      await write(sink, buf);
     },
     readFrom: async (source) => {
-      return view(await zcbuf.fillExactFrom(source))[getter](
+      const buf = new ZeroCopyBuf(size);
+      return view(await buf.fillExactFrom(source))[getter](
         0,
         littleEndian,
       ) as Primitives[T];
