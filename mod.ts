@@ -272,3 +272,30 @@ export async function io<I, O, U = O>(
   ]);
   return out;
 }
+
+export class CodecBasin<I, O = I> extends TransformStream<I, O> {
+  constructor(underlying: TransformStream<Uint8Array>, codec: Codec<I, O>, { buffer = false }) {
+    let transform: TransformStreamDefaultControllerTransformCallback<I, O>;
+    if (buffer === true) {
+      transform = async (chunk, controller) => {
+        controller.enqueue(await io(underlying, {
+          // buffer packets with encode()
+          // some underlying sources (such as network-packet based)
+          // literally treat each chunk
+          // and will shutdown if a 'malformed' (including partial) packet arrives
+          // rather than treat as an incoming stream (likely performance considerations)
+          send: async sink => await write(sink, await encode(codec, chunk)),
+          recv: source => codec.readFrom(source),
+        }));
+      };
+    } else {
+      transform = async (chunk, controller) => {
+        controller.enqueue(await io(underlying, {
+          send: sink => codec.writeTo(sink, chunk),
+          recv: source => codec.readFrom(source),
+        }));
+      };
+    }
+    super({ transform });
+  }
+}
