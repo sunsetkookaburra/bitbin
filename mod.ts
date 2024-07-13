@@ -208,6 +208,7 @@ export async function write<T>(
   data: T,
 ): Promise<void> {
   const w = sink.writable.getWriter();
+  await w.ready;
   await w.write(data);
   w.releaseLock();
 }
