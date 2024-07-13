@@ -8,7 +8,7 @@ export * from "./util.ts";
 export { Buffer } from "./deps.ts";
 
 import { Buffer } from "./deps.ts";
-import { Codec, Enc, Sink, Source } from "./types.d.ts";
+import { Codec, Dec, Enc, Sink, Source } from "./types.d.ts";
 import { asBytes } from "./util.ts";
 
 /** Represents the byte-order used to encode numbers. */
@@ -243,4 +243,12 @@ export async function encode<T>(enc: Enc<T>, value: T): Promise<Uint8Array> {
   const buf = new Buffer();
   await enc.writeTo(buf, value);
   return buf.bytes();
+}
+
+export async function io<T, U>(basin: Sink<T> & Source<U>, value: T): Promise<U> {
+  const [_, [result]] = await Promise.all([
+    write(basin, value),
+    gather(basin, 1),
+  ]);
+  return result;
 }
