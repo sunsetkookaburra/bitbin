@@ -14,9 +14,9 @@
  */
 export function view(source: BufferSource): DataView {
   return (
-    "buffer" in source
-      ? new DataView(source.buffer, source.byteOffset, source.byteLength)
-      : new DataView(source)
+    source instanceof ArrayBuffer
+    ? new DataView(source)
+    : new DataView(source.buffer, source.byteOffset, source.byteLength)
   );
 }
 
@@ -32,8 +32,8 @@ export function view(source: BufferSource): DataView {
 export function asBytes(source: BufferSource): Uint8Array {
   return (
     source instanceof ArrayBuffer
-      ? new Uint8Array(source)
-      : new Uint8Array(source.buffer, source.byteOffset, source.byteLength)
+    ? new Uint8Array(source)
+    : new Uint8Array(source.buffer, source.byteOffset, source.byteLength)
   );
 }
 
