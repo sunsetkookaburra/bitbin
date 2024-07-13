@@ -30,10 +30,10 @@ export function BytesRef(size: number, label = ""): Codec<Uint8Array> {
  * use `readN`.
  */
 export function Bytes(size: number, label = ""): Codec<Uint8Array> {
-  const codec = BytesRef(size, label) as {
-    -readonly [K in keyof Codec<Uint8Array>]: Codec<Uint8Array>[K];
+  const underlying = BytesRef(size, label);
+  return {
+    label: `Bytes[${size}](${label})`,
+    writeTo: underlying.writeTo,
+    readFrom: async (source) => (await underlying.readFrom(source)).slice(0),
   };
-  codec.label = `Bytes[${size}](${label})`;
-  codec.readFrom = async (source) => (await codec.readFrom(source)).slice(0);
-  return codec;
 }
