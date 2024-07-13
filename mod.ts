@@ -195,7 +195,7 @@ export async function readBytes(
   return await new ZeroCopyBuf(n).fillExactFrom(source);
 }
 
-/** Write a chunk, or chunks pulled from an Iterable, into a Stream Sink.
+/** Write a chunk into a Stream `Sink<T>`.
  *
  * ```ts
  * const buf = new Buffer();
@@ -205,24 +205,10 @@ export async function readBytes(
  */
 export async function write<T>(
   sink: Sink<T>,
-  data: T | Iterable<T> | AsyncIterable<T>,
+  data: T,
 ): Promise<void> {
   const w = sink.writable.getWriter();
-  if (typeof data == "object" && data !== null) {
-    if (Symbol.iterator in data) {
-      for (const chunk of data) {
-        await w.write(chunk);
-      }
-    } else if (Symbol.asyncIterator in data) {
-      for await (const chunk of data) {
-        await w.write(chunk);
-      }
-    } else {
-      await w.write(data);
-    }
-  } else {
-    await w.write(data);
-  }
+  await w.write(data);
   w.releaseLock();
 }
 
