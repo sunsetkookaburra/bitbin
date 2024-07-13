@@ -13,6 +13,12 @@ export interface Source<T> {
   readonly readable: ReadableStream<T>;
 }
 
+/** Convenience type on `Sink<T> & Source<U>`.
+ *
+ * Both a source of stream data such as a `Request` body,
+ * and a sink of stream data such as a `Response` body. */
+export interface Basin<T, U = T> extends Sink<T>, Source<U> {}
+
 /** An `Enc<T>` implements a binary data encoder
  * which can write data of type `T`. It may also
  * provide a `label` for debugging purposes.
