@@ -13,20 +13,70 @@ export interface Source<T> {
   readonly readable: ReadableStream<T>;
 }
 
-/** A `Codec<T>` implements a binary data encoder and decoder
- * which can read and write data of type `T`. It may also
+/** An `Enc<T>` implements a binary data encoder
+ * which can write data of type `T`. It may also
  * provide a `label` for debugging purposes.
  *
  * ```ts
- * const MyCodec: Codec<number> = { ... };
- * // ...
- * await MyCodec.writeTo(writableStreamSink, 42);
- * // ...
- * const x: number = await MyCodec.readFrom(readableByteStreamSource);
+ * const U8: Enc<number> = {
+ *   writeTo: async (sink: Sink<Uint8Array>, value: number) => {
+ *     await write(sink, new Uint8Array([value]));
+ *   },
+ * };
+
+ * const buf = new Buffer();
+ * await MyCodec.writeTo(buf, 42);
+ *
+ * buf.bytes()[0] === 42; // true
  * ```
  */
-export interface Codec<T> {
-  readonly label?: string;
+export interface Enc<T> {
+  readonly label?: string,
   readonly writeTo: (sink: Sink<Uint8Array>, value: T) => Promise<void>;
+}
+
+/** A `Dec<T>` implements a binary data decoder
+ * which can read data of type `T`. It may also
+ * provide a `label` for debugging purposes.
+ *
+ * ```ts
+ * const U8: Dec<number> = {
+ *   readFrom: async (sink: Sink<Uint8Array>) => {
+ *     return (await readBytes(sink, 1))[0]
+ *   },
+ * };
+
+ * const buf = new Buffer([42]);
+ *
+ * await U8.readFrom(buf) === 42; // true
+ * ```
+ */
+export interface Dec<T> {
+  readonly label?: string,
   readonly readFrom: (source: Source<Uint8Array>) => Promise<T>;
 }
+
+/** A convenience type on `Enc<T> & Dec<T>`,
+ * a `Codec<T>` implements a binary data encoder and decoder
+ * which can read and write data of type `T`.
+ * It may also provide a `label` for debugging purposes.
+ *
+ * ```ts
+ * const U8: Codec<number> = {
+ *   writeTo: async (sink: Sink<Uint8Array>, value: number) => {
+ *     await write(sink, new Uint8Array([value]));
+ *   },
+ *   readFrom: async (sink: Sink<Uint8Array>) => {
+ *     return (await readBytes(sink, 1))[0]
+ *   },
+ * };
+ *
+ * const buf = new Buffer();
+ *
+ * await U8.writeTo(buf, 42);
+ * buf.bytes()[0] === 42; // true
+ *
+ * await U8.readFrom(buf) === 42; // true
+ * ```
+ */
+export interface Codec<T> extends Enc<T>, Dec<T> {}
