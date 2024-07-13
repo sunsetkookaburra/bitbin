@@ -8,8 +8,8 @@ export * from "./util.ts";
 export { Buffer } from "./deps.ts";
 
 import { Buffer } from "./deps.ts";
-import { Enc, Sink, Source } from "./types.d.ts";
-import { asBytes } from "./util.ts";
+import { Codec, Enc, Sink, Source } from "./types.d.ts";
+import { asBytes, cat } from "./util.ts";
 
 /** Represents the byte-order used to encode numbers. */
 export type Endian = "be" | "le";
@@ -245,10 +245,30 @@ export async function encode<T>(enc: Enc<T>, value: T): Promise<Uint8Array> {
   return buf.bytes();
 }
 
-export async function io<T, U>(basin: Sink<T> & Source<U>, value: T): Promise<U> {
+export async function transform<I, O>(
+  basin: TransformStream<I, O>,
+  value: I,
+) {
   const [_, [result]] = await Promise.all([
     write(basin, value),
     gather(basin, 1),
   ]);
   return result;
+}
+
+export async function io<I, O, U = O>(
+  basin: TransformStream<I, O>,
+  {
+    send = () => {},
+    recv = async (source) => (await gather(source, 1))[0] as unknown as U,
+  }: {
+    send?: (sink: Sink<I>) => void | Promise<void>,
+    recv?: (sink: Source<O>) => U | Promise<U>,
+  } = {}
+): Promise<U> {
+  const [_, out] = await Promise.all([
+    send(basin),
+    recv(basin),
+  ]);
+  return out;
 }
