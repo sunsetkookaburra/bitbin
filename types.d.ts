@@ -62,9 +62,9 @@ export interface Dec<T> {
   readonly readFrom: (source: Source<Uint8Array>) => Promise<T>;
 }
 
-/** A convenience type on `Enc<T> & Dec<T>`,
+/** A convenience type on `Enc<T> & Dec<U>`,
  * a `Codec<T>` implements a binary data encoder and decoder
- * which can read and write data of type `T`.
+ * which can read data of type `U` and write data of type `T`.
  * It may also provide a `label` for debugging purposes.
  *
  * ```ts
@@ -85,4 +85,4 @@ export interface Dec<T> {
  * await U8.readFrom(buf) === 42; // true
  * ```
  */
-export interface Codec<T> extends Enc<T>, Dec<T> {}
+export interface Codec<T, U = T> extends Enc<T>, Dec<U> {}
