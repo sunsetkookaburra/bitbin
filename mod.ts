@@ -256,6 +256,9 @@ export async function transform<I, O>(
   return result;
 }
 
+/** NB: this exists, and future implementors should take note,
+ * that any reads in the writable stream or writes in the readable stream
+ * will cause headaches with already locked readers / writers */
 export class BasinStream<I, O = I> implements Basin<I, O> {
   readonly writable: WritableStream<I>;
   readonly readable: ReadableStream<O>;
