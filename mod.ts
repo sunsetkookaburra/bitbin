@@ -8,8 +8,8 @@ export * from "./util.ts";
 export { Buffer } from "./deps.ts";
 
 import { Buffer } from "./deps.ts";
-import { Codec, Enc, Sink, Source } from "./types.d.ts";
-import { asBytes, cat } from "./util.ts";
+import { Basin, Codec, Enc, Sink, Source } from "./types.d.ts";
+import { asBytes } from "./util.ts";
 
 /** Represents the byte-order used to encode numbers. */
 export type Endian = "be" | "le";
@@ -256,46 +256,55 @@ export async function transform<I, O>(
   return result;
 }
 
-export async function io<I, O, U = O>(
-  basin: TransformStream<I, O>,
-  {
-    send = () => {},
-    recv = async (source) => (await gather(source, 1))[0] as unknown as U,
-  }: {
-    send?: (sink: Sink<I>) => void | Promise<void>,
-    recv?: (sink: Source<O>) => U | Promise<U>,
-  } = {}
-): Promise<U> {
-  const [_, out] = await Promise.all([
-    send(basin),
-    recv(basin),
-  ]);
-  return out;
+export class BasinStream<I, O = I> implements Basin<I, O> {
+  readonly writable: WritableStream<I>;
+  readonly readable: ReadableStream<O>;
+
+  constructor(
+    {
+      writable,
+      readable,
+      start,
+    }: {
+      writable: Omit<UnderlyingSink, "start">,
+      readable: Omit<UnderlyingSource, "start">,
+      start?: () => void | Promise<void>,
+    },
+    writableStrategy?: QueuingStrategy,
+    readableStrategy?: QueuingStrategy,
+  ) {
+    const startedDefer = Promise.withResolvers();
+    (async () => await start?.())().then(() => startedDefer.resolve(void(0)));
+    this.writable = new WritableStream({
+      ...writable,
+      start: async () => {
+        await startedDefer.promise;
+      },
+    }, writableStrategy);
+    this.readable = new ReadableStream({
+      ...readable,
+      start: async () => {
+        await startedDefer.promise;
+      },
+    }, readableStrategy);
+  }
 }
 
-export class CodecBasin<I, O = I> extends TransformStream<I, O> {
-  constructor(underlying: TransformStream<Uint8Array>, codec: Codec<I, O>, { buffer = false }) {
-    let transform: TransformStreamDefaultControllerTransformCallback<I, O>;
-    if (buffer === true) {
-      transform = async (chunk, controller) => {
-        controller.enqueue(await io(underlying, {
-          // buffer packets with encode()
-          // some underlying sources (such as network-packet based)
-          // literally treat each chunk
-          // and will shutdown if a 'malformed' (including partial) packet arrives
-          // rather than treat as an incoming stream (likely performance considerations)
-          send: async sink => await write(sink, await encode(codec, chunk)),
-          recv: source => codec.readFrom(source),
-        }));
-      };
-    } else {
-      transform = async (chunk, controller) => {
-        controller.enqueue(await io(underlying, {
-          send: sink => codec.writeTo(sink, chunk),
-          recv: source => codec.readFrom(source),
-        }));
-      };
-    }
-    super({ transform });
+export class CodecStream<I, O = I> extends BasinStream<I, O> {
+  constructor(underlying: Basin<Uint8Array>, codec: Codec<I, O>, { buffered }: { buffered: boolean }) {
+    super({
+      writable: {
+        write: (
+          buffered === true
+          ? async (chunk) => await write(underlying, await encode(codec, chunk))
+          : async (chunk) => await codec.writeTo(underlying, chunk)
+        ),
+      },
+      readable: {
+        pull: async (controller) => {
+          controller.enqueue(await codec.readFrom(underlying));
+        },
+      },
+    });
   }
 }
