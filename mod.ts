@@ -269,8 +269,8 @@ export class BasinStream<I, O = I> implements Basin<I, O> {
       readable,
       start,
     }: {
-      writable: Omit<UnderlyingSink, "start">,
-      readable: Omit<UnderlyingSource, "start">,
+      writable: Omit<UnderlyingSink<I>, "start">,
+      readable: Omit<UnderlyingSource<O>, "start">,
       start?: () => void | Promise<void>,
     },
     writableStrategy?: QueuingStrategy,
